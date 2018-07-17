@@ -1,0 +1,8 @@
+Dropped db.genes, db.transcripts, and db.exons.
+Done loading metadata. Took 0 seconds
+Done loading genes. Took 14 seconds
+Done indexing gene table. Took 0 seconds
+Done loading transcripts. Took 11 seconds
+Done indexing transcript table. Took 2 seconds
+Done loading exons. Took 69 seconds
+Done indexing exon table. Took 17 seconds

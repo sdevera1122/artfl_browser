@@ -1,0 +1,142 @@
+<!doctype html>
+<head>
+    <title>ARTFL Browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+    <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    -->
+   
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='typeaheadjs.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link href='https://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.11.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='typeahead.bundle.min.js') }}"></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.tablesorter.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.tablesorter.pager.js') }}"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='theme.default.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='underscore-min.js') }}"></script>
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
+    <script type="text/javascript" src="https://gabelerner.github.io/canvg/rgbcolor.js"></script>
+    <script type="text/javascript" src="https://gabelerner.github.io/canvg/StackBlur.js"></script>
+    <script type="text/javascript" src="https://gabelerner.github.io/canvg/canvg.js"></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
+    <script type="text/javascript" src="{{  url_for('static', filename='exac.js') }}"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+
+
+    <!--
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55729303-1', 'auto');
+        ga('send', 'pageview');
+    </script>-->
+
+    <script type="text/javascript">
+        number_of_samples = 60706;
+        release_number = 0.3;
+        number_of_samples_full = 91796;
+        $(document).ready(function() {
+            $('.number_samples').html(Number(number_of_samples).toLocaleString('en'));
+            $('.number_samples_full').html(Number(number_of_samples_full).toLocaleString('en'));
+            $('.release_number').html(Number(release_number).toLocaleString('en'));
+        });
+        $(function() {
+            var bestPictures = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              remote: '/autocomplete/%QUERY'
+            });
+
+            bestPictures.initialize();
+
+            $('.awesomebar').typeahead(
+                {
+                    autoselect: true,
+                },
+                {
+                    name: 'best-pictures',
+                    displayKey: 'value',
+                    source: bestPictures.ttAdapter(),
+                }
+            );
+            $('.awesomebar').bind('typeahead:selected', function(obj, datum) {
+                window.location.href = '/awesome?query=' + datum.value;
+            });
+        });
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default " role="navigation" style="background: white; ">
+    <div class="container-fluid row " style="margin-right: 0px;">
+        <div class="navbar-header col-md-3 col-xs-3">
+            <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/" ><img src="{{ url_for('static', filename='images/Mergelogo.png') }}" align="left" height="50" width="100"/> <span style="position:absolute; top:40px; left: 100px; color: black; font-weight: bold; float: left; vertical-align:bottom; font-size: 15px; font-family:'Lato' !important;">ARTFL Sequence Analysis </span></a>
+
+        </div>
+        <div class="col-md-5 col-xs-5"  style="margin-top: 30px; ">
+            <div id="navbar_form_container">
+                <form action="/awesome" class="navbar-form" role="search">
+                    <div class="form-group" id="navbar-awesomebar">
+                        <input type="submit" style="display: none;"/>
+                        <input id="navbar-searchbox-input" name="query" class="form-control awesomebar" type="text" placeholder="Gene, transcript, variant, or region"/>
+                        <input type="submit" style="position: absolute; left: -9999px"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4 col-xs-4" style="margin-top: 30px;"> 
+            <div class="nav navbar-nav navbar-right text-right" >
+                    <!--<p class="text-muted" style="font-family:'Lato' !important; position:absolute; text-align: right; top:50px; left:85%;">Original source code from <a href="http://exac.broadinstitute.org" target="_blank">ExAC</a> </p>-->
+                    <ul class="list-unstyled" style=" font-family:'Lato' !important; ">
+                        <li style="font-size: 12px;">Original source code from <a href="http://exac.broadinstitute.org" target="_blank">ExAC</a></li>
+                        <li style="font-size: 12px;">Implemented by <span style="color:#245580;" >Sandeep Deverasetty, </span> <a href="https://www.semel.ucla.edu/coppolalab" target="_blank"> Coppola lab </a> </li>
+                    </ul>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+
+
+
+
+
+{% block body %}{% endblock %}
+</body>
+
+{#<div id="header">#}
+{#    <div class="container">#}
+{#        <span>#}
+{#            <a href="/" style="color: white; font-weight: bold; float: left;">ExAC Browser (Beta)</a>#}
+{#        </span>#}
+{#        <form action="/awesome" class="navbar-form navbar-left" role="search">#}
+{#            <div class="form-group">#}
+{#                <input type="submit" style="display: none;"/>#}
+{#                <input id="navbar-searchbox-input" name="query" class="form-control" type="text" placeholder="Gene, transcript, variant, or region"/>#}
+{#                <input type="submit" style="position: absolute; left: -9999px"/>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{#</div>#}

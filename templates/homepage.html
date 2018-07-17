@@ -1,0 +1,415 @@
+{% extends "layout.html" %}
+{% block body %}
+    <script>
+        
+        $('#navbar_form_container').hide();
+        
+        window.summaryVepDict = {{ summaryVepDict|tojson|safe }};
+        var vepsummary = JSON.parse(window.summaryVepDict);
+        for (var key in vepsummary){
+            if (key == 'variant_classes'){
+                var variant_classes = vepsummary[key];
+                var title = 'Variant Classes'
+                createPie(variant_classes,title,'variant_classes')
+            }
+            else if (key == 'consequences_ms'){
+                var consequences_ms = vepsummary[key];
+                var title = 'Consequences (most severe)'
+                createPie(consequences_ms,title,'consequences_ms')
+            }
+            else if (key == 'consequences_all'){
+                var consequences_all = vepsummary[key];
+                var title = 'Consequences (all)'
+                createPie(consequences_all,title,'consequences_all')
+            }
+            else if (key == 'coding_consequences'){
+                var coding_consequences = vepsummary[key];
+                var title = 'Coding consequences'
+                createPie(coding_consequences,title,'coding_consequences')
+            }
+            else if (key == 'sift_summary'){
+                var sift_summary = vepsummary[key];
+                var title = 'SIFT summary'
+                createPie(sift_summary,title,'sift_summary')
+            }
+            else if (key == 'polyphen_summary'){
+                var polyphen_summary = vepsummary[key];
+                var title = 'PolyPhen summary'
+                createPie(polyphen_summary,title,'polyphen_summary')
+            }
+            else if (key == 'variants_by_chromosome'){
+                var variants_by_chromosome = vepsummary[key];
+                var title = 'Variants by chromosome'
+                createBarchart(variants_by_chromosome,title,'variants_by_chromosome')
+            }
+        }
+
+        function createPie(vepdata, title, containerID){
+            var data = new Array();
+            var i = 0;
+            for (var key in vepdata){
+                var row = {};
+                row["name"] = key;
+                row["y"] = parseInt(vepdata[key]);
+                data[i] = row;
+                i++;
+            }
+            $(document).ready(function() {
+                $('#'+containerID).highcharts({
+                    chart: {
+                        plotBackgroundColor: '#f5f5f5',
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: title
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.y}</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: title,
+                        data: data
+                    }]
+                });
+            });
+        }
+
+        function createBarchart(vepdata, title, containerID){
+            var data = new Array();
+            var i = 0;
+            for (var key in vepdata){
+                var row = {};
+                row["name"] = key;
+                row["y"] = parseInt(vepdata[key]);
+                data[i] = row;
+                i++;
+            }
+            $(document).ready(function() {
+                $('#'+containerID).highcharts({
+                    chart: {
+                        plotBackgroundColor: '#f5f5f5',
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'column'
+                    },
+                    title: {
+                        text: title
+                    },
+                    tooltip: {
+                        headerFormat: '',//'chr<small>{point.key}</small>:',
+                        pointFormat: '<b>{point.y}</b>',
+                        valueSuffix: ' variants',
+                    },
+                    xAxis:{
+                        type: 'category',
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '# of Variants'
+                        }
+                    },
+                    
+                    series: [{
+                        name: title,
+                        data: data
+                    }]
+                });
+            });
+        }
+        
+
+    </script>
+
+    <style>
+        #wrapper {
+            font-family:'Lato' !important;
+            padding-left: 250px;
+            transition: all 0.4s ease 0s;
+        }
+
+        #sidebar-wrapper {
+            font-family:'Lato' !important;
+            margin-left: -250px;
+            left: 250px;
+            width: 250px;
+            background: white;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.4s ease 0s;
+        }           
+
+        #wrapper.active {
+            padding-left: 0;
+        }
+
+        #wrapper.active #sidebar-wrapper {
+            left: 0;
+        }
+
+        #page-content-wrapper {
+            width: 100%;
+        }
+
+        .sidebar-nav {
+            position: absolute;
+            top: 0;
+            width: 250px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar-nav li {
+            line-height: 20px;
+            text-indent: 10px;
+        }
+
+        .sidebar-nav li a {
+            color: black;
+            display: block;
+            text-decoration: none;
+            padding-left: 60px;
+        }
+
+        .sidebar-nav li a span:before {
+            position: absolute;
+            left: 0;
+            color: #41484c;
+            text-align: center;
+            width: 20px;
+            line-height: 18px;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li.active {
+            color: white;
+            background: #37bc9b;
+            text-decoration: none;
+        }
+
+        .sidebar-nav li a:active,
+        .sidebar-nav li a:focus {
+            text-decoration: none;
+        }
+
+        .sidebar-nav > .sidebar-brand {
+            height: 65px;
+            line-height: 60px;
+            font-size: 18px;
+        }
+
+       
+        .content-header {
+            height: 65px;
+            line-height: 60px;
+        }
+
+        .content-header h1 {
+            margin: 0;
+            margin-left: 20px;
+            line-height: 35px;
+            display: inline-block;
+        }
+
+        #menu-toggle {
+            text-decoration: none;
+        }
+
+        .btn-menu {
+            color: yellow;
+        } 
+
+        .inset {
+            padding: 20px;
+        }
+
+        @media (max-width:767px) {
+
+        #wrapper {
+            padding-left: 0;
+        }
+
+        #sidebar-wrapper {
+            left: 0;
+        }
+
+        #wrapper.active {
+            position: relative;
+            left: 250px;
+        }
+
+        #wrapper.active #sidebar-wrapper {
+            left: 250px;
+            width: 250px;
+            transition: all 0.4s ease 0s;
+        }
+
+        #menu-toggle {
+            display: inline-block;
+        }
+
+        .inset {
+            padding: 15px;
+        }
+
+        }
+
+    </style>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <nav id="spy">
+                <ul class="sidebar-nav nav">
+                    <li class="sidebar-brand">
+                        <a href="#home-title"><span class="fa fa-home">Home</span></a>
+                    </li>
+                    <li>
+                        <a href="#variant_classes" data-scroll>
+                            <span >Variant classes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#consequences_ms" data-scroll>
+                            <span >Consequences (most severe)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#consequences_all" data-scroll>
+                            <span >Consequences (all)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#coding_consequences" data-scroll>
+                            <span >Coding consequences</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#sift_summary" data-scroll>
+                            <span >SIFT summary</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#polyphen_summary" data-scroll>
+                            <span >PolyPhen summary</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#variants_by_chromosome" data-scroll>
+                            <span >Variants by chromosome</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Page content -->
+        <div id="page-content-wrapper">
+            <div class="content-header">
+                <h1 id="home-title" class="col-md-11">
+                    <a href="https://www.rarediseasesnetwork.org/cms/artfl/" target="_blank"><img src="{{ url_for('static', filename='images/ARTFLweb.png') }}" height="75" width="250"/><img src="{{ url_for('static', filename='images/new_artfl.png') }}" height="75" width="250"/></a><span style="display:inline-block; vertical-align:bottom; font-family:'Lato' !important;"> browser</span>
+                </h1>
+            </div>
+
+            <div class="page-content inset" data-spy="scroll" data-target="#spy">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="home-searchbox">
+                            <form action="/awesome">
+                                <input type="submit" style="display: none;"/>
+                                <input style="border-radius: 30px 30px 30px 30px; font-family:'Lato' !important;" id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search for a gene or variant or region"/>
+                                <input type="submit" style="position: absolute; left: -9999px"/>
+                            </form>
+                            <p class="text-muted" style="font-family:'Lato' !important;"><small>
+                                Examples - Gene: <a href="/awesome?query=PSEN2">PSEN2</a>,
+                                Transcript: <a href="/transcript/ENST00000407236">ENST00000407236</a>,
+                                Variant: <a href="/variant/22-46615880-T-C">22-46615880-T-C</a>,
+                                Multi-allelic variant: <a href="/awesome?query=rs1800844">rs1800844</a>,
+                                Region: <a href="/region/22-46615715-46615880">22:46615715-46615880</a>
+                            </p></small>
+                        </div>
+                    </div>
+    
+                </div>
+                <div class="row" style="text-align: center;">
+                    <a href="http://bam.iobio.io/?bam=https://coppolalab.ucla.edu/static/bigwig/1016_ARTFL_MergedBamFile.bam&region=all" class="btn btn-primary btn-lg active" role="button" target="_blank" aria-pressed="true">bam stats</a>&nbsp
+                    <!--<a href="http://bam.iobio.io/?bam=https://coppolalab.ucla.edu/static/bigwig/ARTFLmerged.aln.dedup.bam&region=all" class="btn btn-primary btn-lg active" role="button" target="_blank" aria-pressed="true">bam old test stats</a>&nbsp-->
+                    <a href="http://vcf.iobio.io/?vcf=https://coppolalab.ucla.edu/static/bigwig/1025_Artfl_with_hist.vcf.gz" class="btn btn-primary btn-lg active" role="button" target="_blank" aria-pressed="true">vcf stats</a>
+                </div>
+                <div class="row">
+                    <!--<div class="col-md-12 well">
+                        <legend id="anch1">Variant classes</legend>
+                        <div id="container" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+                    </div>-->
+                    <div class="col-md-12 well" id="variant_classes" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                    <div class="col-md-12 well" id="consequences_ms" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                    <div class="col-md-12 well" id="consequences_all" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                    <div class="col-md-12 well" id="coding_consequences" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                    <div class="col-md-12 well" id="sift_summary" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                    <div class="col-md-12 well" id="polyphen_summary" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                    <div class="col-md-12 well" id="variants_by_chromosome" style="min-width: 310px; height: 400px;  margin: 0 auto"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--
+    <div class="container" >
+        <h1 id="home-title">
+            <a href="https://www.rarediseasesnetwork.org/cms/artfl/" target="_blank"><img src="{{ url_for('static', filename='images/ARTFLweb.png') }}" height="75" width="250"/></a><span style="display:inline-block; vertical-align:bottom; font-family:'Lato' !important;"> browser</span>
+        </h1>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="home-searchbox">
+                    <form action="/awesome">
+                        <input type="submit" style="display: none;"/>
+                        <input style="border-radius: 30px 30px 30px 30px; font-family:'Lato' !important;" id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search for a gene or variant or region"/>
+                        <input type="submit" style="position: absolute; left: -9999px"/>
+                    </form>
+                    <p class="text-muted" style="font-family:'Lato' !important;"><small>
+                        Examples - Gene: <a href="/awesome?query=PCSK9">PCSK9</a>,
+                        Transcript: <a href="/transcript/ENST00000407236">ENST00000407236</a>,
+                        Variant: <a href="/variant/22-46615880-T-C">22-46615880-T-C</a>,
+                        Multi-allelic variant: <a href="/awesome?query=rs1800234">rs1800234</a>,
+                        Region: <a href="/region/22-46615715-46615880">22:46615715-46615880</a>
+                    </p></small>
+                </div>
+            </div>
+        </div>
+    </div>-->
+<footer class="footer" style="position: relative; bottom: 0; width: 100%; height: 100%; background-color: #f5f5f5;">
+      <div class="container ">
+            <ul class="list-unstyled" style="text-align: center; font-family:'Lato' !important;">
+                <li style="font-size: 12px;">Original source code from <a href="http://exac.broadinstitute.org" target="_blank">ExAC</a></li>
+                <li style="font-size: 12px;">Implemented by <span style="color:#245580;" >Sandeep Deverasetty, </span> <a href="https://www.semel.ucla.edu/coppolalab" target="_blank"> Coppola lab </a> </li>
+                <!--<li style="font-size: 12px;">Implemented by </br><span style="color:#245580;" >Sandeep Deverasetty </span></li>
+                <li style="font-size: 12px;"><a href="https://www.semel.ucla.edu/coppolalab" target="_blank">Coppola lab </a></li>-->
+            </ul>
+      </div>
+</footer>
+
+
+{% endblock %}
+
+
